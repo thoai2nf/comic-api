@@ -26,15 +26,12 @@ CREATE TABLE "Chapter" (
     CONSTRAINT "Chapter_pkey" PRIMARY KEY ("id", "story_id")
 ) PARTITION BY LIST (story_id);
 
--- Create partitions for chapters (example for story_id 1 and 2)
-CREATE TABLE "Chapter_1" PARTITION OF "Chapter" FOR VALUES IN (1);
-CREATE TABLE "Chapter_2" PARTITION OF "Chapter" FOR VALUES IN (2);
-
 -- CreateIndex
 CREATE UNIQUE INDEX "Story_init_id_key" ON "Story"("init_id");
 
 -- Sửa unique index cho Chapter để bao gồm story_id
-CREATE UNIQUE INDEX "Chapter_init_id_story_id_key" ON "Chapter"("init_id", "story_id");
+CREATE UNIQUE INDEX "Chapter_story_id_key" ON "Chapter"("story_id");
+CREATE UNIQUE INDEX "Chapter_init_id_key" ON "Chapter"("init_id");
 
 -- AddForeignKey
 ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_story_id_fkey" FOREIGN KEY ("story_id") REFERENCES "Story"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
