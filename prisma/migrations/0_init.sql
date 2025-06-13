@@ -1,3 +1,4 @@
+-- CreateTable
 CREATE TABLE "Story" (
     "id" SERIAL NOT NULL,
     "init_id" TEXT NOT NULL,
@@ -29,9 +30,11 @@ CREATE TABLE "Chapter" (
 -- CreateIndex
 CREATE UNIQUE INDEX "Story_init_id_key" ON "Story"("init_id");
 
--- Sửa unique index cho Chapter để bao gồm story_id
-CREATE UNIQUE INDEX "Chapter_story_id_key" ON "Chapter"("story_id");
-CREATE UNIQUE INDEX "Chapter_init_id_key" ON "Chapter"("init_id");
+-- Corrected unique index for Chapter
+CREATE UNIQUE INDEX "Chapter_init_id_key" ON "Chapter"("init_id", "story_id");
+
+-- Optional: Remove unnecessary index if not needed
+-- DROP INDEX "Chapter_story_id_key";
 
 -- AddForeignKey
 ALTER TABLE "Chapter" ADD CONSTRAINT "Chapter_story_id_fkey" FOREIGN KEY ("story_id") REFERENCES "Story"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -43,10 +46,9 @@ DECLARE
     partition_table_name TEXT;
     story_id_value INTEGER;
 BEGIN
-    story_id_value := NEW.id;
+    story_id_value := NEW.story_id; -- Changed from NEW.id to NEW.story_id
     partition_table_name := 'Chapter_' || story_id_value;
 
-    -- Kiểm tra xem partition đã tồn tại chưa
     IF NOT EXISTS (
         SELECT FROM pg_tables
         WHERE schemaname = 'public' AND tablename = partition_table_name
